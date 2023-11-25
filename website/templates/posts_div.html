@@ -1,0 +1,253 @@
+<!-- posts_div.html -->
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<style>
+.post {
+    max-width: 340px;
+    margin: 18px;
+    float:left;
+    object-fit:cover;
+    box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+}
+@media only screen and (min-width: 768px) {
+    .post .post-image {
+        width: 360px;
+        height:360px;
+        object-fit:cover;
+    }
+}
+.post-header {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #e6e6e6;
+}
+
+.profile-pic {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.username {
+    color: black;
+    text-decoration: none;
+    font-weight: bold;
+    font-family: 'Cantarell', sans-serif;
+    letter-spacing:1px;
+    margin: 8px;
+}
+
+.post-image {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.post-description {
+    padding: 12px;
+}
+
+.caption {
+    margin: 8px;
+    font-size: 14px;
+    line-height: 1.4;
+    font-family: 'Cantarell', sans-serif;
+}
+
+.post-actions {
+    display: flex;
+    justify-content: space-around;
+    padding: 10px;
+    border-top: 1px solid #e6e6e6;
+}
+
+.like-button,
+.comment-button,
+.share-button {
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    outline: none;
+}
+
+.like-button:hover,
+.comment-button:hover,
+.share-button:hover {
+    text-decoration: underline;
+    color: #000;
+}
+
+.post-actions button {
+            margin-right: 10px;
+        }
+
+.dropdown-item {
+    text-align:center;
+    background:#9370DB;
+    border:none;
+    border-radius:8px;
+    font-family: 'Cantarell', sans-serif;
+    color:white;
+    margin:6px;
+    box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px, rgba(6, 24, 44, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
+    }
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
+    z-index: 9999; /* Ensure it appears on top of other content */
+}
+
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    z-index: 10000; /* Ensure it appears on top of the overlay */
+}
+
+.toggle-button {
+    width: 100%;
+    height: auto;
+    background: #9370DB;
+    padding: 8px 16px;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 1; /* Ensure button is above other elements */
+  }
+.close-btn {
+    background:#9370DB;
+    border:2px solid white;
+    color:white;
+    border:none;
+    border-radius:4px;
+    margin-top:8px;
+    padding:8px 16px;
+    }
+
+.notification-text {
+    position:absolute;
+    max-width: 288px;
+    background: #9370DB;
+    font-family: 'Cantarell', sans-serif;
+    padding: 8px;
+    width: 100%;
+    color: white;
+    text-align:center;
+    transition: opacity 0.5s ease-in-out;
+    z-index:100000;
+}
+
+.counts-wrapper {
+    display: flex;
+    justify-content: center; /* Center the items */
+    text-align: center;
+}
+
+.count-container {
+    margin: 0 18px; /* Adjust the gap between the items */
+}
+
+.count {
+    font-size: 36px;
+    margin-bottom: -18px; /* Adjust the spacing between the number and the text below */
+}
+
+.count-text {
+    font-size: 14px;
+}
+
+.dreamText {
+    margin-top:18px;
+    font-size: 18px;
+    font-family: 'Cantarell', sans-serif;
+    }
+</style>
+    <header style="text-align:center; margin-top:8px;">
+        <h1>{% block header %}{% endblock %}</h1>
+    </header>
+<!-- Your HTML content -->
+<div class="main">
+    <div id="posts">
+        {% for post in posts %}
+        <div class="post" id="post-{{ post.id }}">
+            <div class="notification-text" style="display: none;">
+                <span>"If 48 people says it's not a dream, all users get delete option."</span>
+            </div>
+            <div class="post-header">
+                {% if post.user.profile_img %} <!-- Check if the user has a profile image -->
+                    <img src="{{ url_for('views.serve_profile_image', user_id=post.user.id) }}" alt="Profile Picture" class="profile-pic" style="border:2px solid white; width:40px; height:40px; object-fit:cover;">
+                {% else %}
+                    <div class="profile-pic"><i class="fa fa-user-circle-o" style="font-size:36px"></i></div>
+                {% endif %}
+                <a class="username" href="/posts/{{post.user.username}}">{{post.user.username[:8].capitalize() }}</a>
+                {% if current_user != post.user %}
+                    {% if current_user.is_following(post.user) %}
+                        <button id="unfollow-{{ post.user.id }}" onclick="toggleFollow({{ post.user.id }})" class="btn btn-sm" style="background: #9370DB; color:white; display: inline-block;">Unfollow</button>
+                        <button id="follow-{{ post.user.id }}" onclick="toggleFollow({{ post.user.id }})" class="btn btn-sm" style="background: #9370DB; color:white; display: none;">Follow</button>
+                    {% else %}
+                        <button id="unfollow-{{ post.user.id }}" onclick="toggleFollow({{ post.user.id }})" class="btn btn-sm" style="background: #9370DB; color:white; display: none;">Unfollow</button>
+                        <button id="follow-{{ post.user.id }}" onclick="toggleFollow({{ post.user.id }})" class="btn btn-sm" style="background: #9370DB; color:white; display: inline-block;">Follow</button>
+                    {% endif %}
+                {% endif %}
+                <!-- Like, Comment, Share buttons -->
+                    <div class="btn-group">
+                            {% if user.id == post.author %}
+                                <a href="/delete-post/{{post.id}}" class="delete-post btn btn-sm" data-post-id="{{ post.id }}" style="background: #9370DB; color:white;">Delete</a>
+                            {% endif %}
+                            {% if user.id != post.author %}
+                            <button style="border:none; background:none; color:black;" type="button" class="btn btn-sm" data-bs-toggle="dropdown"><i class="fa fa-ellipsis-v" style="font-size:24px"></i></button>
+                            <ul style="background:none; border:none" class="dropdown-menu">
+                            <li>
+                                {% if post_saved_info[post.id] %}
+                                    <button class="save-post dropdown-item" data-post-id="{{ post.id }}">Unsave</button>
+                                {% else %}
+                                    <button class="save-post dropdown-item" data-post-id="{{ post.id }}">Save</button>
+                                {% endif %}
+                            </li>
+                            <li>
+                                {% if post_likes_count[post.id] >= 2 %}
+                                    <a href="/delete-post/{{ post.id }}" class="delete-post dropdown-item" data-post-id="{{ post.id }}">2 People Said This Is not a dream<br>So, You can delete this</a>
+                                {% else %}
+                                    <a href="/like-post/{{post.id}}" class="like-post dropdown-item" data-post-id="{{ post.id }}">Not a Dream, Remove It<br/>Present: {{ post.likes|length}}/2</a>
+                                {% endif %}
+                            {% endif %}
+                            </li>
+                        </ul>
+                    </div>
+            </div>
+            <img class="post-image" src="{{ url_for('views.serve_image', post_id=post.id) }}" alt="Post Image - {{ post.user.username }}" onerror="this.src='/static/placeholder.jpg'>
+            <div class="post-description">
+                <p class="username">{{post.titletext}}</p>
+                <div class="caption">{{post.text}}</div>
+                <small class="caption">Created On {{post.date_created.strftime('%Y %b %d')}}</small>
+                <button onclick="toggleTotalText(this)" class="toggle-button">See My Dream</button>
+                    <div class="overlay" style="display: none;" onclick="closeModal()"></div>
+                    <div class="modal" style="display: none; float:center; text-align:center;">
+                        <img src="{{ url_for('views.serve_image', post_id=post.id) }}" alt="Profile Picture" class="profile-pic"  style="width:143px; height:143px; object-fit:cover;">
+                        <div class="total-text dreamText">{{post.totaltext}}</div>
+                        <button class = "close-btn" onclick="closeModal()">Close</button>
+                    </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<br />
+  <div align="center">
+      <a href="/home"><button style="margin-top:28px; background:#9370DB; border:none;" type="submit" class="btn btn-lg btn-primary">Load More</button></a>
+  </div>
+<br />
+{% endblock %}

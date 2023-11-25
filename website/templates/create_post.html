@@ -1,0 +1,84 @@
+<!-- create_post.html -->
+{% extends "base.html" %} {% block title %}Share Your Dream{% endblock %} {% block content
+%}
+<style>
+  .profile-pic {
+  display:none;
+  }
+/* Style for the dropdown menu */
+.category-dropdown {
+  width: 200px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  background-color: #fff;
+  color: #333;
+  outline: none; /* Remove default outline */
+  cursor: pointer;
+}
+
+/* Style for dropdown options */
+.category-dropdown option {
+  font-size: 16px;
+  background-color: #fff;
+  color: #333;
+}
+
+/* Style for dropdown when opened */
+.category-dropdown:focus,
+.category-dropdown:hover {
+  border-color: #555;
+}
+
+</style>
+<h1 align="center">Share Your Dream</h1>
+
+<form enctype="multipart/form-data" method="POST">
+  <div>
+    <textarea name="titletext" id="titletext" class="form-control" placeholder="Give Title Using 18 Letters" maxlength="18"></textarea>
+    <span class="char-count" id="titletext-count">0/18</span>
+  </div>
+  <br />
+  <div>
+    <textarea name="text" id="text" class="form-control" placeholder="Give Caption Using 28 Letters" maxlength="28"></textarea>
+    <span class="char-count" id="text-count">0/28</span>
+  </div>
+  <br />
+  <textarea name="totaltext" id="text3" class="form-control" placeholder="This is whole dream"></textarea>
+  <br />
+  <input type="file" name="pic" class="form-control"/>
+  <br/>
+  <div>
+    <label style="margin-bottom:8px;" for="category-dropdown" onclick="toggleCategoryDropdown()">Select Category</label>
+    <select id = "category-dropdown" name="category" class="form-select" aria-label="Default select example">
+      <option selected value="Love">Love</option>
+      <option value="Family">Family</option>
+      <option value="Friends">Friends</option>
+      <option value="Horror">Horror</option>
+      <option value="Fantasy">Fantasy</option>
+      <option value="Travel">Travel</option>
+      <option value="Educational">Educational</option>
+      <option value="Thriller">Thriller</option>
+      <option value="Health">Travel</option>
+      <option value="Other">Other</option>
+    </select>
+  </div>
+  <br />
+  <div align="center">
+    <button type="submit" class="btn btn-lg btn-primary">Post</button>
+  </div>
+</form>
+<br />
+<div align="center">
+  <a href="/home"
+    ><button type="button" class="btn btn-lg btn-secondary">Back</button></a
+  >
+</div>
+<script>
+  function toggleCategoryDropdown() {
+    var categoryDropdown = document.getElementById("category-dropdown");
+    categoryDropdown.classList.toggle("category-dropdown");
+  }
+</script>
+{% endblock %}

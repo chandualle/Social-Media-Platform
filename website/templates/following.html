@@ -1,0 +1,22 @@
+<!-- following.html -->
+{% extends "base.html" %}
+{% block title %}Following{% endblock %}
+{% block content %}
+<h1 class="username" style="text-align: center;">{{ username.capitalize() }} is Following</h1>
+<div style="text-align: center;">
+  <ul style="list-style-type: none; padding: 0;">
+    {% for follower in followers %}
+      <li style="margin: 16px;">
+        {% if follower.follower.profile_img %}
+          <img src="{{ url_for('views.serve_profile_image', user_id=follower.follower.id) }}" alt="Profile Image" style="object-fit:cover; width: 50px; height: 50px; border-radius: 50%; margin-right: 12px;">
+        {% else %}
+          <img src="/static/default_profile_image.jpg" alt="Default Profile Image" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 12px;">
+        {% endif %}
+        <a href="{{ url_for('views.posts', username=follower.follower.username) }}" style="text-decoration: none; color: black;">
+          {{ follower.follower.username.capitalize() }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}
